@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.BaojianDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.yiliao_id as yiliaoId
+        ,a.laoren_id as laorenId
+        ,a.baojian_name as baojianName
+        ,a.baojian_uuid_number as baojianUuidNumber
+        ,a.baojian_photo as baojianPhoto
+        ,a.baojian_address as baojianAddress
+        ,a.baojian_types as baojianTypes
+        ,a.baojian_content as baojianContent
+        ,a.baojian_delete as baojianDelete
+        ,a.insert_time as insertTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.BaojianView" >
+        SELECT
+        <include refid="Base_Column_List" />
+        <!-- 级联表的字段 -->
+        ,laoren.laoren_name as laorenName
+        ,laoren.laoren_phone as laorenPhone
+        ,laoren.laoren_email as laorenEmail
+        ,laoren.new_money as newMoney
+        ,laoren.laoren_content as laorenContent
+        ,laoren.laoren_delete as laorenDelete
+        ,yiliao.yiliao_name as yiliaoName
+        ,yiliao.yiliao_phone as yiliaoPhone
+        ,yiliao.yiliao_email as yiliaoEmail
+        ,yiliao.yiliao_content as yiliaoContent
+        ,yiliao.yiliao_delete as yiliaoDelete
+
+        FROM baojian  a
+        left JOIN laoren laoren ON a.laoren_id = laoren.id
+        left JOIN yiliao yiliao ON a.yiliao_id = yiliao.id
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test="params.yiliaoId != null and params.yiliaoId != ''">
+                and (
+                    a.yiliao_id = #{params.yiliaoId}
+                )
+            </if>
+            <if test="params.laorenId != null and params.laorenId != ''">
+                and (
+                    a.laoren_id = #{params.laorenId}
+                )
+            </if>
+            <if test=" params.baojianName != '' and params.baojianName != null and params.baojianName != 'null' ">
+                and a.baojian_name like CONCAT('%',#{params.baojianName},'%')
+            </if>
+            <if test=" params.baojianUuidNumber != '' and params.baojianUuidNumber != null and params.baojianUuidNumber != 'null' ">
+                and a.baojian_uuid_number like CONCAT('%',#{params.baojianUuidNumber},'%')
+            </if>
+            <if test=" params.baojianAddress != '' and params.baojianAddress != null and params.baojianAddress != 'null' ">
+                and a.baojian_address like CONCAT('%',#{params.baojianAddress},'%')
+            </if>
+            <if test="params.baojianTypes != null and params.baojianTypes != ''">
+                and a.baojian_types = #{params.baojianTypes}
+            </if>
+            <if test=" params.baojianContent != '' and params.baojianContent != null and params.baojianContent != 'null' ">
+                and a.baojian_content like CONCAT('%',#{params.baojianContent},'%')
+            </if>
+            <if test="params.baojianDeleteStart != null and params.baojianDeleteStart != ''">
+                <![CDATA[  and a.baojian_delete >= #{params.baojianDeleteStart}   ]]>
+            </if>
+            <if test="params.baojianDeleteEnd != null and params.baojianDeleteEnd != ''">
+                <![CDATA[  and a.baojian_delete <= #{params.baojianDeleteEnd}   ]]>
+            </if>
+             <if test="params.baojianDelete != null and params.baojianDelete != ''">
+                and a.baojian_delete = #{params.baojianDelete}
+             </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+
+                <!-- 判断老人的id不为空 -->
+            <if test=" params.laorenIdNotNull != '' and params.laorenIdNotNull != null and params.laorenIdNotNull != 'null' ">
+                and a.laoren_id IS NOT NULL
+            </if>
+            <if test=" params.laorenName != '' and params.laorenName != null and params.laorenName != 'null' ">
+                and laoren.laoren_name like CONCAT('%',#{params.laorenName},'%')
+            </if>
+            <if test=" params.laorenPhone != '' and params.laorenPhone != null and params.laorenPhone != 'null' ">
+                and laoren.laoren_phone like CONCAT('%',#{params.laorenPhone},'%')
+            </if>
+            <if test=" params.laorenEmail != '' and params.laorenEmail != null and params.laorenEmail != 'null' ">
+                and laoren.laoren_email like CONCAT('%',#{params.laorenEmail},'%')
+            </if>
+            <if test="params.newMoneyStart != null ">
+                <![CDATA[  and laoren.new_money >= #{params.newMoneyStart}   ]]>
+            </if>
+            <if test="params.newMoneyEnd != null ">
+                <![CDATA[  and laoren.new_money <= #{params.newMoneyEnd}   ]]>
+            </if>
+            <if test=" params.laorenContent != '' and params.laorenContent != null and params.laorenContent != 'null' ">
+                and laoren.laoren_content like CONCAT('%',#{params.laorenContent},'%')
+            </if>
+            <if test="params.laorenDeleteStart != null  and params.laorenDeleteStart != '' ">
+                <![CDATA[  and laoren.laoren_delete >= #{params.laorenDeleteStart}   ]]>
+            </if>
+            <if test="params.laorenDeleteEnd != null  and params.laorenDeleteEnd != '' ">
+                <![CDATA[  and laoren.laoren_delete <= #{params.laorenDeleteEnd}   ]]>
+            </if>
+            <if test="params.laorenDelete != null  and params.laorenDelete != '' ">
+                and laoren.laoren_delete = #{params.laorenDelete}
+            </if>
+                <!-- 判断医疗人员的id不为空 -->
+            <if test=" params.yiliaoIdNotNull != '' and params.yiliaoIdNotNull != null and params.yiliaoIdNotNull != 'null' ">
+                and a.yiliao_id IS NOT NULL
+            </if>
+            <if test=" params.yiliaoName != '' and params.yiliaoName != null and params.yiliaoName != 'null' ">
+                and yiliao.yiliao_name like CONCAT('%',#{params.yiliaoName},'%')
+            </if>
+            <if test=" params.yiliaoPhone != '' and params.yiliaoPhone != null and params.yiliaoPhone != 'null' ">
+                and yiliao.yiliao_phone like CONCAT('%',#{params.yiliaoPhone},'%')
+            </if>
+            <if test=" params.yiliaoEmail != '' and params.yiliaoEmail != null and params.yiliaoEmail != 'null' ">
+                and yiliao.yiliao_email like CONCAT('%',#{params.yiliaoEmail},'%')
+            </if>
+            <if test=" params.yiliaoContent != '' and params.yiliaoContent != null and params.yiliaoContent != 'null' ">
+                and yiliao.yiliao_content like CONCAT('%',#{params.yiliaoContent},'%')
+            </if>
+            <if test="params.yiliaoDeleteStart != null  and params.yiliaoDeleteStart != '' ">
+                <![CDATA[  and yiliao.yiliao_delete >= #{params.yiliaoDeleteStart}   ]]>
+            </if>
+            <if test="params.yiliaoDeleteEnd != null  and params.yiliaoDeleteEnd != '' ">
+                <![CDATA[  and yiliao.yiliao_delete <= #{params.yiliaoDeleteEnd}   ]]>
+            </if>
+            <if test="params.yiliaoDelete != null  and params.yiliaoDelete != '' ">
+                and yiliao.yiliao_delete = #{params.yiliaoDelete}
+            </if>
+        </where>
+        order by a.${params.sort} ${params.order}
+    </select>
+
+</mapper>

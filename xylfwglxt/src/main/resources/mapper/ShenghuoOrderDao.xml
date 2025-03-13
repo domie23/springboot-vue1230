@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.ShenghuoOrderDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.shenghuo_order_uuid_number as shenghuoOrderUuidNumber
+        ,a.shenghuo_id as shenghuoId
+        ,a.yonghu_id as yonghuId
+        ,a.shenghuo_order_types as shenghuoOrderTypes
+        ,a.insert_time as insertTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.ShenghuoOrderView" >
+        SELECT
+        <include refid="Base_Column_List" />
+        <!-- 级联表的字段 -->
+        ,shenghuo.laoren_id as shenghuoLaorenId
+        ,shenghuo.shenghuo_name as shenghuoName
+        ,shenghuo.shenghuo_uuid_number as shenghuoUuidNumber
+        ,shenghuo.shenghuo_photo as shenghuoPhoto
+        ,shenghuo.shenghuo_address as shenghuoAddress
+        ,shenghuo.shenghuo_types as shenghuoTypes
+        ,shenghuo.shenghuo_content as shenghuoContent
+        ,shenghuo.shenghuo_delete as shenghuoDelete
+        ,yonghu.yonghu_name as yonghuName
+        ,yonghu.yonghu_phone as yonghuPhone
+        ,yonghu.yonghu_id_number as yonghuIdNumber
+        ,yonghu.yonghu_photo as yonghuPhoto
+        ,yonghu.new_money as newMoney
+        ,yonghu.yonghu_email as yonghuEmail
+
+        FROM shenghuo_order  a
+        left JOIN shenghuo shenghuo ON a.shenghuo_id = shenghuo.id
+        left JOIN yonghu yonghu ON a.yonghu_id = yonghu.id
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test=" params.shenghuoOrderUuidNumber != '' and params.shenghuoOrderUuidNumber != null and params.shenghuoOrderUuidNumber != 'null' ">
+                and a.shenghuo_order_uuid_number like CONCAT('%',#{params.shenghuoOrderUuidNumber},'%')
+            </if>
+            <if test="params.shenghuoId != null and params.shenghuoId != ''">
+                and (
+                    a.shenghuo_id = #{params.shenghuoId}
+                )
+            </if>
+            <if test="params.yonghuId != null and params.yonghuId != ''">
+                and (
+                    a.yonghu_id = #{params.yonghuId}
+                )
+            </if>
+            <if test="params.shenghuoOrderTypes != null and params.shenghuoOrderTypes != ''">
+                and a.shenghuo_order_types = #{params.shenghuoOrderTypes}
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+
+                <!-- 判断生活照料的id不为空 -->
+            <if test=" params.shenghuoIdNotNull != '' and params.shenghuoIdNotNull != null and params.shenghuoIdNotNull != 'null' ">
+                and a.shenghuo_id IS NOT NULL
+            </if>
+            <if test="params.laorenId != null  and params.laorenId != ''">
+                and shenghuo.laoren_id = #{params.laorenId}
+            </if>
+            <if test=" params.shenghuoName != '' and params.shenghuoName != null and params.shenghuoName != 'null' ">
+                and shenghuo.shenghuo_name like CONCAT('%',#{params.shenghuoName},'%')
+            </if>
+            <if test=" params.shenghuoUuidNumber != '' and params.shenghuoUuidNumber != null and params.shenghuoUuidNumber != 'null' ">
+                and shenghuo.shenghuo_uuid_number like CONCAT('%',#{params.shenghuoUuidNumber},'%')
+            </if>
+            <if test=" params.shenghuoAddress != '' and params.shenghuoAddress != null and params.shenghuoAddress != 'null' ">
+                and shenghuo.shenghuo_address like CONCAT('%',#{params.shenghuoAddress},'%')
+            </if>
+            <if test="params.shenghuoTypes != null  and params.shenghuoTypes != ''">
+                and shenghuo.shenghuo_types = #{params.shenghuoTypes}
+            </if>
+
+            <if test=" params.shenghuoContent != '' and params.shenghuoContent != null and params.shenghuoContent != 'null' ">
+                and shenghuo.shenghuo_content like CONCAT('%',#{params.shenghuoContent},'%')
+            </if>
+            <if test="params.shenghuoDeleteStart != null  and params.shenghuoDeleteStart != '' ">
+                <![CDATA[  and shenghuo.shenghuo_delete >= #{params.shenghuoDeleteStart}   ]]>
+            </if>
+            <if test="params.shenghuoDeleteEnd != null  and params.shenghuoDeleteEnd != '' ">
+                <![CDATA[  and shenghuo.shenghuo_delete <= #{params.shenghuoDeleteEnd}   ]]>
+            </if>
+            <if test="params.shenghuoDelete != null  and params.shenghuoDelete != '' ">
+                and shenghuo.shenghuo_delete = #{params.shenghuoDelete}
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(shenghuo.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(shenghuo.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+                <!-- 判断乡村志愿者的id不为空 -->
+            <if test=" params.yonghuIdNotNull != '' and params.yonghuIdNotNull != null and params.yonghuIdNotNull != 'null' ">
+                and a.yonghu_id IS NOT NULL
+            </if>
+            <if test=" params.yonghuName != '' and params.yonghuName != null and params.yonghuName != 'null' ">
+                and yonghu.yonghu_name like CONCAT('%',#{params.yonghuName},'%')
+            </if>
+            <if test=" params.yonghuPhone != '' and params.yonghuPhone != null and params.yonghuPhone != 'null' ">
+                and yonghu.yonghu_phone like CONCAT('%',#{params.yonghuPhone},'%')
+            </if>
+            <if test=" params.yonghuIdNumber != '' and params.yonghuIdNumber != null and params.yonghuIdNumber != 'null' ">
+                and yonghu.yonghu_id_number like CONCAT('%',#{params.yonghuIdNumber},'%')
+            </if>
+            <if test="params.newMoneyStart != null ">
+                <![CDATA[  and yonghu.new_money >= #{params.newMoneyStart}   ]]>
+            </if>
+            <if test="params.newMoneyEnd != null ">
+                <![CDATA[  and yonghu.new_money <= #{params.newMoneyEnd}   ]]>
+            </if>
+            <if test=" params.yonghuEmail != '' and params.yonghuEmail != null and params.yonghuEmail != 'null' ">
+                and yonghu.yonghu_email like CONCAT('%',#{params.yonghuEmail},'%')
+            </if>
+        </where>
+        order by a.${params.sort} ${params.order}
+    </select>
+
+</mapper>

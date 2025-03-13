@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.YiliaoDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.username as username
+        ,a.password as password
+        ,a.yiliao_name as yiliaoName
+        ,a.yiliao_phone as yiliaoPhone
+        ,a.yiliao_email as yiliaoEmail
+        ,a.sex_types as sexTypes
+        ,a.yiliao_content as yiliaoContent
+        ,a.yiliao_delete as yiliaoDelete
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.YiliaoView" >
+        SELECT
+        <include refid="Base_Column_List" />
+        <!-- 级联表的字段 -->
+
+        FROM yiliao  a
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test=" params.username != '' and params.username != null and params.username != 'null' ">
+                and a.username like CONCAT('%',#{params.username},'%')
+            </if>
+            <if test=" params.password != '' and params.password != null and params.password != 'null' ">
+                and a.password like CONCAT('%',#{params.password},'%')
+            </if>
+            <if test=" params.yiliaoName != '' and params.yiliaoName != null and params.yiliaoName != 'null' ">
+                and a.yiliao_name like CONCAT('%',#{params.yiliaoName},'%')
+            </if>
+            <if test=" params.yiliaoPhone != '' and params.yiliaoPhone != null and params.yiliaoPhone != 'null' ">
+                and a.yiliao_phone like CONCAT('%',#{params.yiliaoPhone},'%')
+            </if>
+            <if test=" params.yiliaoEmail != '' and params.yiliaoEmail != null and params.yiliaoEmail != 'null' ">
+                and a.yiliao_email like CONCAT('%',#{params.yiliaoEmail},'%')
+            </if>
+            <if test="params.sexTypes != null and params.sexTypes != ''">
+                and a.sex_types = #{params.sexTypes}
+            </if>
+            <if test=" params.yiliaoContent != '' and params.yiliaoContent != null and params.yiliaoContent != 'null' ">
+                and a.yiliao_content like CONCAT('%',#{params.yiliaoContent},'%')
+            </if>
+            <if test="params.yiliaoDeleteStart != null and params.yiliaoDeleteStart != ''">
+                <![CDATA[  and a.yiliao_delete >= #{params.yiliaoDeleteStart}   ]]>
+            </if>
+            <if test="params.yiliaoDeleteEnd != null and params.yiliaoDeleteEnd != ''">
+                <![CDATA[  and a.yiliao_delete <= #{params.yiliaoDeleteEnd}   ]]>
+            </if>
+             <if test="params.yiliaoDelete != null and params.yiliaoDelete != ''">
+                and a.yiliao_delete = #{params.yiliaoDelete}
+             </if>
+
+        </where>
+        order by a.${params.sort} ${params.order}
+    </select>
+
+</mapper>

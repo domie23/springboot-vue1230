@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.LaorenDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.username as username
+        ,a.password as password
+        ,a.laoren_name as laorenName
+        ,a.laoren_phone as laorenPhone
+        ,a.laoren_email as laorenEmail
+        ,a.sex_types as sexTypes
+        ,a.new_money as newMoney
+        ,a.laoren_content as laorenContent
+        ,a.laoren_delete as laorenDelete
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.LaorenView" >
+        SELECT
+        <include refid="Base_Column_List" />
+        <!-- 级联表的字段 -->
+
+        FROM laoren  a
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test=" params.username != '' and params.username != null and params.username != 'null' ">
+                and a.username like CONCAT('%',#{params.username},'%')
+            </if>
+            <if test=" params.password != '' and params.password != null and params.password != 'null' ">
+                and a.password like CONCAT('%',#{params.password},'%')
+            </if>
+            <if test=" params.laorenName != '' and params.laorenName != null and params.laorenName != 'null' ">
+                and a.laoren_name like CONCAT('%',#{params.laorenName},'%')
+            </if>
+            <if test=" params.laorenPhone != '' and params.laorenPhone != null and params.laorenPhone != 'null' ">
+                and a.laoren_phone like CONCAT('%',#{params.laorenPhone},'%')
+            </if>
+            <if test=" params.laorenEmail != '' and params.laorenEmail != null and params.laorenEmail != 'null' ">
+                and a.laoren_email like CONCAT('%',#{params.laorenEmail},'%')
+            </if>
+            <if test="params.sexTypes != null and params.sexTypes != ''">
+                and a.sex_types = #{params.sexTypes}
+            </if>
+            <if test="params.newMoneyStart != null ">
+                <![CDATA[  and a.new_money >= #{params.newMoneyStart}   ]]>
+            </if>
+            <if test="params.newMoneyEnd != null ">
+                <![CDATA[  and a.new_money <= #{params.newMoneyEnd}   ]]>
+            </if>
+            <if test=" params.laorenContent != '' and params.laorenContent != null and params.laorenContent != 'null' ">
+                and a.laoren_content like CONCAT('%',#{params.laorenContent},'%')
+            </if>
+            <if test="params.laorenDeleteStart != null and params.laorenDeleteStart != ''">
+                <![CDATA[  and a.laoren_delete >= #{params.laorenDeleteStart}   ]]>
+            </if>
+            <if test="params.laorenDeleteEnd != null and params.laorenDeleteEnd != ''">
+                <![CDATA[  and a.laoren_delete <= #{params.laorenDeleteEnd}   ]]>
+            </if>
+             <if test="params.laorenDelete != null and params.laorenDelete != ''">
+                and a.laoren_delete = #{params.laorenDelete}
+             </if>
+
+        </where>
+        order by a.${params.sort} ${params.order}
+    </select>
+
+</mapper>
